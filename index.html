@@ -64,9 +64,38 @@
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"> <!-- Added Bulma CSS -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
+        :root {
+            --primary-color: #2563eb;
+            --primary-color-rgb: 37, 99, 235; /* Added for RGBA usage */
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --accent-color-rgb: 59, 130, 246; /* Added for RGBA usage */
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --white-color: #ffffff;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+
+            --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            --gradient-secondary: linear-gradient(135deg, var(--accent-color) 0%, var(--secondary-color) 100%);
+            --gradient-animated: linear-gradient(270deg, var(--primary-color), var(--accent-color), var(--secondary-color), var(--primary-color));
+            --gradient-text-clip: {
+                background: var(--gradient-primary);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                text-fill-color: transparent;
+            };
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -75,10 +104,55 @@
         }
         
         body {
-            background-color: #f8fafc;
+            background-color: #f8fafc; /* Fallback for the main animated gradient */
             color: #1e293b;
             scroll-behavior: smooth;
             overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            /* New globally animated background */
+            background: var(--gradient-animated);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+            position: relative; /* For z-indexing context of ::before */
+            z-index: 0; /* Ensure body is a stacking context */
+        }
+
+        body::before { /* Mouse-reactive spotlight overlay */
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle 700px at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+                                        rgba(var(--primary-color-rgb), 0.15), 
+                                        transparent 65%);
+            z-index: -1; /* Behind body content, but ::before is tricky with body itself */
+                         /* If this doesn't work, z-index: 1 and ensure content is higher or try a dedicated div */
+        }
+        
+        /* Ensure all direct children of body that are main content containers have a higher z-index or are positioned */
+        nav,
+        section,
+        footer {
+            position: relative;
+            z-index: 2; /* Ensure content is above the ::before pseudo-element if it had z-index:1 or similar */
+        }
+
+        /* The loading div needs to be on top of everything */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001; /* Higher than the old custom cursor, ensure it's on top of new effects too */
+            transition: opacity 0.5s ease-out;
         }
         
         .glass-card {
@@ -91,7 +165,7 @@
         }
         
         .gradient-bg {
-            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
         }
         
         .timeline-item::before {
@@ -102,7 +176,7 @@
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            background: #2563eb;
+            background: var(--primary-color);
             border: 3px solid white;
             z-index: 10;
         }
@@ -114,7 +188,7 @@
             top: 0;
             height: 100%;
             width: 3px;
-            background: linear-gradient(to bottom, #2563eb, #3b82f6);
+            background: linear-gradient(to bottom, var(--primary-color), var(--accent-color));
         }
         
         .skill-card {
@@ -127,7 +201,7 @@
         }
         
         .typewriter {
-            border-right: 3px solid #2563eb;
+            border-right: 3px solid var(--primary-color);
             white-space: nowrap;
             overflow: hidden;
             animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
@@ -140,7 +214,7 @@
         
         @keyframes blink-caret {
             from, to { border-color: transparent }
-            50% { border-color: #2563eb }
+            50% { border-color: var(--primary-color) }
         }
         
         .fade-in {
@@ -166,7 +240,7 @@
             left: 0;
             width: 50%;
             height: 4px;
-            background: linear-gradient(to right, #2563eb, #3b82f6);
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
             border-radius: 4px;
         }
         
@@ -182,7 +256,7 @@
             left: 0;
             width: 0;
             height: 2px;
-            background: #2563eb;
+            background: var(--primary-color);
             transition: width 0.3s ease;
         }
         
@@ -326,7 +400,7 @@
         }
         
         .group:hover img {
-            box-shadow: 0 0 40px 0 #3b82f6, 0 8px 32px rgba(37,99,235,0.15);
+            box-shadow: 0 0 40px 0 var(--accent-color), 0 8px 32px rgba(37,99,235,0.15);
         }
         
         @keyframes fade-in-up {
@@ -376,10 +450,11 @@
         }
         
         .gradient-text {
-            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-fill-color: transparent;
         }
         
         .gradient-border {
@@ -395,7 +470,7 @@
             left: -2px;
             right: -2px;
             bottom: -2px;
-            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            background: var(--gradient-primary);
             z-index: -1;
             border-radius: 24px;
         }
@@ -422,14 +497,15 @@
         }
         
         .text-gradient {
-            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-fill-color: transparent;
         }
         
         .bg-gradient {
-            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            background: var(--gradient-primary);
         }
         
         .shadow-custom {
@@ -506,7 +582,7 @@
             width: 50px;
             height: 50px;
             border: 5px solid #f3f3f3;
-            border-top: 5px solid #2563eb;
+            border-top: 5px solid var(--primary-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -515,9 +591,693 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* === NEW MODERN STYLES === */
+
+        /* Animated Gradient Background */
+        .animated-gradient-bg {
+            background: var(--gradient-animated);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Enhanced Glassmorphism Card for Projects */
+        .project-card-modern {
+            background: rgba(255, 255, 255, 0.65); /* Slightly more opaque */
+            backdrop-filter: blur(16px); /* Adjusted blur */
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px; /* More rounded */
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 12px 40px rgba(var(--dark-color), 0.09);
+            transition: all 0.45s cubic-bezier(0.25, 0.8, 0.25, 1); /* Refined transition */
+            position: relative;
+            overflow: hidden; 
+            transform-style: preserve-3d; /* For 3D hover effects */
+            opacity: 0; /* Initial state for entrance animation */
+            transform: translateY(40px); /* Initial state for entrance animation */
+        }
+
+        .project-card-modern.animate-in {
+            opacity: 1;
+            transform: translateY(0px);
+        }
+
+        .project-card-modern::before { /* Gradient border reveal on hover */
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 24px;
+            padding: 2px; 
+            background: var(--gradient-primary);
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.45s ease-in-out;
+            z-index: 1; /* Ensure border is above background but below content */
+        }
+        
+        .project-card-modern:hover::before {
+            opacity: 1;
+        }
+
+        .project-card-modern:hover {
+            transform: translateY(-15px) scale(1.03) rotateX(5deg) rotateY(-3deg); /* 3D tilt + lift */
+            box-shadow: 0 30px 60px rgba(var(--dark-color), 0.15), 
+                        0 0 40px rgba(var(--accent-color), 0.35), /* Enhanced glow */
+                        0 0 15px rgba(var(--primary-color),0.2) inset; /* Subtle inner shadow */
+        }
+
+        .project-card-modern .project-image-wrapper {
+            height: 220px; 
+            overflow: hidden;
+            border-top-left-radius: 24px; 
+            border-top-right-radius: 24px;
+            transform: translateZ(20px); /* Bring image forward in 3D space */
+            transition: transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .project-card-modern:hover .project-image-wrapper {
+            /* No change needed here, image zoom is separate */
+        }
+
+        .project-card-modern .project-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .project-card-modern:hover .project-image {
+            transform: scale(1.12); /* Slightly more zoom */
+        }
+
+        .project-card-modern .project-content {
+            padding: 1.75rem; 
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            transform: translateZ(10px); /* Bring content forward slightly */
+            position: relative; /* Ensure content is above ::before pseudo-element */
+            z-index: 2;
+        }
+
+        .project-card-modern .project-tags span {
+             background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+             color: var(--white-color);
+             padding: 0.3rem 0.75rem;
+             border-radius: 9999px; 
+             font-size: 0.7rem; 
+             font-weight: 600;
+             text-transform: uppercase;
+             letter-spacing: 0.5px;
+             transition: transform 0.3s ease;
+        }
+
+        .project-card-modern:hover .project-tags span {
+            transform: translateY(-2px); /* Make tags lift a bit */
+        }
+        
+        .project-card-modern .project-title {
+            font-size: 1.35rem; 
+            font-weight: 700;
+            color: var(--dark-color); 
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .project-card-modern .project-description {
+            font-size: 0.9rem;
+            color: var(--gray-700);
+            margin-bottom: 1.25rem;
+            flex-grow: 1;
+            line-height: 1.6;
+        }
+
+        .project-card-modern .project-link {
+            display: inline-flex; /* For aligning icon */
+            align-items: center; /* For aligning icon */
+            justify-content: center; /* For aligning icon */
+            margin-top: auto; 
+            padding: 0.75rem 1.5rem;
+            background: var(--gradient-primary);
+            color: var(--white-color);
+            border-radius: 9999px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.35s ease;
+            box-shadow: 0 5px 18px rgba(var(--primary-color), 0.25);
+        }
+
+        .project-card-modern .project-link i {
+            margin-left: 0.5rem; /* Space for icon */
+            transition: transform 0.3s ease;
+        }
+
+        .project-card-modern .project-link:hover {
+            transform: translateY(-3px) scale(1.04);
+            box-shadow: 0 8px 25px rgba(var(--primary-color), 0.35);
+            background: var(--gradient-secondary); /* Shift gradient on hover */
+        }
+
+        .project-card-modern .project-link:hover i {
+            transform: translateX(4px); /* Move icon on hover */
+        }
+
+        /* New style for the anchor wrapping the project card */
+        .project-card-link {
+            display: block; /* Make the anchor a block element */
+            text-decoration: none; /* Remove default underline */
+            color: inherit; /* Inherit text color */
+            border-radius: 24px; /* Match card's border-radius for focus styles */
+            transition: all 0.45s cubic-bezier(0.25, 0.8, 0.25, 1); /* Consistent transition */
+        }
+
+        .project-card-link:focus {
+            outline: 2px solid var(--accent-color); /* Example focus style */
+            outline-offset: 2px;
+        }
+        
+        /* Styles for the grid to enable perspective for 3D hover */
+        .projects-grid {
+            perspective: 1500px; /* Adjust for desired 3D intensity */
+        }
+
+        /* Hero Headline Specific Styling */
+        .hero-headline-gradient {
+            background: linear-gradient(90deg, var(--white-color), var(--light-color), var(--accent-color), var(--white-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            background-size: 300% 100%; /* Larger size for smooth animation */
+            animation: headlineGradientAnimation 8s ease-in-out infinite;
+            /* Optional: a subtle text shadow if needed, but be careful with gradient text */
+            /* text-shadow: 0px 1px 3px rgba(0,0,0,0.1); */
+        }
+
+        @keyframes headlineGradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        /* === END NEW MODERN STYLES === */
+
+        /* Adapted Modern Card for "About Me" Section */
+        .about-info-card {
+            background: rgba(255, 255, 255, 0.65); /* Slightly more opaque for readability */
+            backdrop-filter: blur(12px); /* Slightly less blur than projects */
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 30px rgba(var(--dark-color), 0.07);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            padding: 2rem; /* Good padding for content */
+        }
+
+        .about-info-card::before { /* Gradient border reveal */
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 20px;
+            padding: 2px;
+            background: var(--gradient-secondary); /* Using a different gradient for variety */
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+        
+        .about-info-card:hover::before {
+            opacity: 1;
+        }
+
+        .about-info-card:hover {
+            transform: translateY(-10px) scale(1.01);
+            box-shadow: 0 20px 45px rgba(var(--dark-color), 0.1), 0 0 25px rgba(var(--secondary-color), 0.25);
+        }
+
+        /* Styling for the small info boxes within About Me */
+        .about-feature-box {
+            background-color: var(--white-color);
+            padding: 1.25rem; /* p-5 */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); /* shadow-md */
+            display: flex;
+            align-items: center;
+            gap: 1rem; /* gap-4 */
+            transition: all 0.3s ease;
+            border: 1px solid transparent; /* Placeholder for hover border */
+        }
+
+        .about-feature-box:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 10px 15px -3px rgba(var(--primary-color), 0.15), 0 4px 6px -2px rgba(var(--primary-color), 0.1);
+            border-color: var(--accent-color);
+        }
+
+        .about-feature-box .feature-icon span {
+            display: inline-flex; /* To center icon properly */
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem; /* p-3 */
+            border-radius: 9999px; /* rounded-full */
+        }
+
+        .about-feature-box .feature-icon .fa-project-diagram { background-color: rgba(var(--primary-color), 0.1); color: var(--primary-color); }
+        .about-feature-box .feature-icon .fa-chart-line { background-color: rgba(var(--accent-color), 0.1); color: var(--accent-color); }
+        .about-feature-box .feature-icon .fa-music { background-color: rgba(var(--secondary-color), 0.1); color: var(--secondary-color); }
+        .about-feature-box .feature-icon .fa-gamepad { background-color: rgba(var(--dark-color), 0.1); color: var(--dark-color); }
+
+        .about-feature-box .feature-text h4 {
+            font-weight: 600; /* font-semibold */
+            font-size: 1rem; /* text-base */
+            margin-bottom: 0.25rem; /* mb-1 */
+            color: var(--dark-color);
+        }
+
+        .about-feature-box .feature-text p {
+            color: var(--gray-600);
+            font-size: 0.875rem; /* text-sm */
+        }
+
+        /* Modern Card for Content Sections (Experience, Education) */
+        .content-card-modern {
+            background: rgba(255, 255, 255, 0.7); /* Standard glassmorphism */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px; /* Slightly less rounded than project cards */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 6px 25px rgba(var(--dark-color), 0.06);
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+            padding: 1.75rem; /* p-6 or p-8 equivalent */
+        }
+
+        .content-card-modern::before { /* Gradient border reveal */
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 16px;
+            padding: 2px;
+            background: var(--gradient-secondary); /* Using secondary gradient */
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.35s ease-in-out;
+        }
+        
+        .content-card-modern:hover::before {
+            opacity: 0.8; /* Slightly subtle border */
+        }
+
+        .content-card-modern:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(var(--dark-color), 0.09), 0 0 20px rgba(var(--secondary-color), 0.2);
+        }
+
+        /* Styling adjustments for content within these cards if needed */
+        .content-card-modern .card-title {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600; /* font-semibold */
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .content-card-modern .card-subtitle {
+            font-size: 1rem; /* text-lg */
+            font-weight: 500; /* font-medium */
+            color: var(--gray-700);
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .content-card-modern .card-subtitle .icon-wrapper {
+            background-color: rgba(var(--primary-color), 0.1);
+            color: var(--primary-color);
+            padding: 0.5rem;
+            border-radius: 9999px; /* rounded-full */
+            margin-right: 0.75rem; /* mr-3 */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-card-modern .card-subtitle .icon-wrapper i {
+            font-size: 0.875rem; /* text-sm */
+        }
+
+        .content-card-modern .card-date {
+            display: inline-block;
+            margin-top: 0.5rem; /* md:mt-0 */
+            margin-bottom: 1rem; /* mb-4 if it's before details */
+            padding: 0.25rem 0.75rem; /* px-3 py-1 */
+            background-color: rgba(var(--primary-color), 0.1);
+            color: var(--primary-color);
+            font-weight: 500; /* font-medium */
+            border-radius: 9999px; /* rounded-full */
+            font-size: 0.875rem; /* text-sm */
+        }
+
+        .content-card-modern ul {
+            list-style: disc;
+            padding-left: 1.25rem; /* pl-5 */
+            color: var(--gray-600);
+            space-y: 0.5rem; /* space-y-2 */
+            margin-top: 1rem;
+        }
+
+        /* Featured Video Section in Projects */
+        .featured-video-section {
+            margin-bottom: 4rem; /* Space before project cards grid */
+            padding: 0 1rem; /* Add some horizontal padding on smaller screens */
+        }
+
+        .featured-video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 20px; /* Consistent rounding */
+            box-shadow: 0 25px 55px rgba(var(--dark-color), 0.2), 0 0 35px rgba(var(--accent-color), 0.3);
+            background-color: var(--gray-800); /* Dark fallback */
+            border: 2px solid rgba(var(--accent-color), 0.3); /* Subtle border */
+        }
+
+        .featured-video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            border-radius: 18px; /* Ensure iframe respects border radius if any bleed-through */
+        }
+
+        .featured-video-caption {
+            text-align: center;
+            margin-top: 2rem;
+            margin-bottom: 1rem; /* Ensure it doesn't overlap with section title if too close */
+        }
+
+        .featured-video-caption h3 {
+            font-size: 1.85rem; /* text-2xl or slightly larger */
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .featured-video-caption p {
+            font-size: 1rem; /* text-base */
+            color: var(--gray-700);
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .featured-video-section .decorative-shape {
+            position: absolute;
+            border-radius: 50%;
+            z-index: -1; /* Behind the video */
+            opacity: 0.15; /* Subtle */
+            filter: blur(50px); /* Very soft glow */
+            animation: pulseShape 10s infinite alternate ease-in-out;
+        }
+
+        .featured-video-section .shape-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--gradient-primary);
+            top: -50px;
+            left: -100px;
+        }
+
+        .featured-video-section .shape-2 {
+            width: 250px;
+            height: 250px;
+            background: var(--gradient-secondary);
+            bottom: -80px;
+            right: -80px;
+            animation-delay: -5s; /* Offset animation */
+        }
+
+        @keyframes pulseShape {
+            0% { transform: scale(0.9); opacity: 0.1; }
+            50% { transform: scale(1.1); opacity: 0.25; }
+            100% { transform: scale(0.9); opacity: 0.1; }
+        }
+        
+        .featured-video-wrapper:hover {
+            transform: scale(1.02); /* Slight scale on video wrapper */
+            box-shadow: 0 30px 60px rgba(var(--dark-color), 0.25), 0 0 45px rgba(var(--accent-color), 0.4);
+            border-color: rgba(var(--accent-color), 0.5); /* More prominent border */
+        }
+
+        .featured-video-caption h3 {
+            font-size: 1.85rem; 
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+            position: relative;
+            display: inline-block; /* For pseudo-element */
+        }
+
+        .featured-video-caption h3::after { /* Subtle underline/reveal effect */
+            content: '';
+            position: absolute;
+            width: 0%;
+            height: 3px;
+            display: block;
+            margin-top: 5px;
+            right: 0;
+            background: var(--gradient-primary);
+            transition: width 0.5s ease 0.2s; /* Animate width with a delay */
+            border-radius: 2px;
+        }
+
+        .featured-video-section.visible .featured-video-caption h3::after {
+            width: 100%; 
+            left: 0;
+        }
+
+        /* Staggered animation for video caption */
+        .featured-video-caption.animate-fade-in-up {
+            animation-delay: 0.3s; /* Delay caption animation relative to video */
+        }
+
+        /* Projects Section Title Enhancement */
+        .projects-title-block .section-title {
+            /* Using a specific class if needed, or enhancing the existing .section-title if it's only used here like this */
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color), var(--secondary-color), var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            background-size: 250% 100%;
+            animation: sectionTitleGradientAnimation 10s ease-in-out infinite;
+        }
+
+        @keyframes sectionTitleGradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .projects-title-block .section-title::after { /* Enhanced underline */
+            content: '';
+            position: absolute;
+            bottom: -10px; /* Adjusted for better spacing */
+            left: 50%; /* Start from center */
+            transform: translateX(-50%); /* Align center */
+            width: 0%; /* Initial width */
+            height: 4px;
+            background: var(--gradient-primary); /* Use a primary gradient */
+            border-radius: 4px;
+            transition: width 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s; /* Delayed animation */
+        }
+
+        .projects-title-block.visible .section-title::after { /* Animate when parent is visible */
+            width: 60%; /* Or desired width, e.g., 60% of title block */
+        }
+        
+        .projects-title-block .section-subtitle {
+            color: var(--gray-600); /* Slightly softer than default dark */
+            font-size: 1.1rem; /* A bit more prominent */
+            /* text-shadow: 0 0 10px rgba(var(--accent-color), 0.1); Optional subtle glow */
+        }
+
+        /* Skills & Certifications Section Enhancements */
+        .skills-section .subsection-title {
+            font-size: 1.75rem; /* Larger than default h3 */
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 2.5rem; /* More space below subsection titles */
+            text-align: center;
+            position: relative;
+            padding-bottom: 0.75rem; /* Space for underline */
+        }
+
+        .skills-section .subsection-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px; /* Fixed width for sub-title underline */
+            height: 3px;
+            background: var(--gradient-secondary); /* Different gradient for variety */
+            border-radius: 3px;
+        }
+
+        .modern-skill-card {
+            background: rgba(255, 255, 255, 0.75); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 7px 28px rgba(var(--dark-color), 0.07);
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+            padding: 1.5rem; /* p-6 */
+            text-align: center; /* Center content */
+        }
+
+        .modern-skill-card::before { /* Gradient border reveal */
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 16px;
+            padding: 2px;
+            background: var(--gradient-primary);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.35s ease-in-out;
+        }
+        
+        .modern-skill-card:hover::before {
+            opacity: 0.9;
+        }
+
+        .modern-skill-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 18px 40px rgba(var(--dark-color), 0.1), 0 0 25px rgba(var(--primary-color), 0.25);
+        }
+
+        .modern-skill-card .skill-icon {
+            color: var(--primary-color);
+            margin-bottom: 0.75rem; /* mb-3 */
+        }
+        .modern-skill-card .skill-icon i {
+            font-size: 3.5rem; /* Roughly text-5xl, but more specific */
+        }
+
+        .modern-skill-card .skill-name {
+            font-weight: 600; /* font-semibold */
+            font-size: 1.125rem; /* text-lg */
+            margin-bottom: 1rem; /* mb-2 original, more space before bar */
+            color: var(--dark-color);
+        }
+
+        .skill-progress-bar-container {
+            width: 100%;
+            background-color: var(--gray-200);
+            border-radius: 9999px; /* rounded-full */
+            height: 12px; /* h-2.5, but more specific */
+            overflow: hidden; /* To contain the animated bar */
+        }
+
+        .skill-progress-bar {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 9999px;
+            width: 0; /* Initial width for animation */
+            transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s; /* Smooth animation with delay */
+        }
+
+        /* Certifications also use content-card-modern, already defined */
+
+        /* Custom Gradient Cursor - REMOVED */
+        /*
+        body {
+            cursor: none; 
+        }
+        .custom-cursor {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 28px; 
+            height: 28px;
+            border-radius: 50%;
+            background: var(--gradient-animated);
+            background-size: 300% 300%;
+            animation: gradientAnimation 12s ease infinite alternate; 
+            pointer-events: none; 
+            transform: translate(-50%, -50%);
+            z-index: 10000; 
+            transition: width 0.25s ease, height 0.25s ease, opacity 0.25s ease, transform 0.1s ease-out; 
+            opacity: 0.85;
+        }
+        .custom-cursor.active { 
+            width: 48px;
+            height: 48px;
+            opacity: 0.45;
+        }
+        .custom-cursor.pointer { 
+             width: 10px; 
+             height: 35px;
+             border-radius: 5px; 
+        }
+        */
+
+        /* Scroll Progress Bar */
+        #scroll-progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 5px; /* Thickness of the bar */
+            background: var(--gradient-primary); /* Use a distinct gradient */
+            width: 0%; /* Initial width */
+            z-index: 9999; /* Just below cursor, above nav if nav is also fixed */
+            transition: width 0.1s linear; /* Smooth width change */
+        }
     </style>
 </head>
 <body class="relative">
+    <div id="scroll-progress-bar"></div> <!-- Scroll Progress Bar -->
     <!-- Loading Screen -->
     <div class="loading">
         <div class="loading-spinner"></div>
@@ -578,31 +1338,29 @@
     </nav>
 
     <!-- Hero Section -->
-    <section id="hero" class="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-light to-accent">
-        <div class="container mx-auto px-4 flex flex-col items-center justify-center text-center">
+    <section id="hero" class="min-h-screen flex items-center justify-center relative overflow-hidden animated-gradient-bg">
+        <div class="container mx-auto px-4 flex flex-col items-center justify-center text-center relative z-10">
             <div class="relative flex flex-col items-center justify-center mb-8">
-                <div class="profile-img floating shadow-2xl" style="box-shadow: 0 0 60px 10px #3b82f6, 0 0 0 10px rgba(37,99,235,0.1);">
+                <div class="profile-img floating shadow-2xl" style="box-shadow: 0 0 60px 10px var(--accent-color), 0 0 0 10px rgba(37,99,235,0.1);">
                     <img src="assets/images/personal-image.jpg" alt="Nguyen To Hoang Gia" class="w-full h-full object-cover">
                 </div>
                 <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-6 py-2 rounded-full shadow-lg border-2 border-primary text-primary font-bold text-lg tracking-wide">
                     Nguyen To Hoang Gia
                 </div>
             </div>
-            <h1 class="text-4xl md:text-6xl font-extrabold mb-4 gradient-text drop-shadow-lg">Digital Transformation Consultant</h1>
-            <div class="typewriter text-xl md:text-2xl font-medium text-dark mb-6" style="min-height:2.5rem;">Empowering Business with Technology</div>
-            <p class="text-lg md:text-xl text-gray-700 max-w-2xl mx-auto mb-8">I am passionate about leveraging digital solutions to drive business growth and innovation. With a lot of experience in consulting in subjects project, I help organizations in reality transform and thrive in the digital era.</p>
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-4 hero-headline-gradient drop-shadow-lg">Digital Transformation Consultant</h1>
+            <div class="typewriter text-xl md:text-2xl font-medium text-white mb-6" style="min-height:2.5rem;">Empowering Business with Technology</div>
+            <p class="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto mb-8">I am passionate about leveraging digital solutions to drive business growth and innovation. With a lot of experience in consulting in subjects project, I help organizations in reality transform and thrive in the digital era.</p>
             <div class="flex gap-6 justify-center mb-8">
-                <a href="#contact" class="btn-hover-effect bg-primary text-white px-8 py-3 rounded-full font-semibold text-lg shadow-lg transition-all duration-300 hover:bg-accent hover:text-dark hover:scale-105">Contact Me</a>
-                <a href="https://drive.google.com/file/d/1_LoyS13IAXL8ocVPyLPjoJ_DnZ68bUrv/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="btn-hover-effect bg-white text-primary border-2 border-primary px-8 py-3 rounded-full font-semibold text-lg shadow-lg transition-all duration-300 hover:bg-primary hover:text-white hover:scale-105">Download CV</a>
+                <a href="#contact" class="btn-hover-effect bg-white text-primary px-8 py-3 rounded-full font-semibold text-lg shadow-lg transition-all duration-300 hover:bg-opacity-90 hover:text-secondary hover:scale-105">Contact Me</a>
+                <a href="https://drive.google.com/file/d/1_LoyS13IAXL8ocVPyLPjoJ_DnZ68bUrv/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="btn-hover-effect bg-transparent text-white border-2 border-white px-8 py-3 rounded-full font-semibold text-lg shadow-lg transition-all duration-300 hover:bg-white hover:text-primary hover:scale-105">Download CV</a>
             </div>
             <div class="flex gap-6 justify-center mt-4">
-                <a href="https://www.linkedin.com/in/nguyễn-tô-hoàng-gia-607a2027a" target="_blank" class="social-icon text-primary text-3xl hover:text-accent transition-transform duration-300"><i class="fab fa-linkedin"></i></a>
-                <a href="https://github.com/Royal2005-coder?tab=repositories" target="_blank" class="social-icon text-primary text-3xl hover:text-accent transition-transform duration-300"><i class="fab fa-github"></i></a>
-                <a href="mailto:gianth23406@st.uel.edu.vn" class="social-icon text-primary text-3xl hover:text-accent transition-transform duration-300"><i class="fas fa-envelope"></i></a>
+                <a href="https://www.linkedin.com/in/nguyễn-tô-hoàng-gia-607a2027a" target="_blank" class="social-icon text-white text-3xl hover:text-opacity-80 transition-transform duration-300"><i class="fab fa-linkedin"></i></a>
+                <a href="https://github.com/Royal2005-coder?tab=repositories" target="_blank" class="social-icon text-white text-3xl hover:text-opacity-80 transition-transform duration-300"><i class="fab fa-github"></i></a>
+                <a href="mailto:gianth23406@st.uel.edu.vn" class="social-icon text-white text-3xl hover:text-opacity-80 transition-transform duration-300"><i class="fas fa-envelope"></i></a>
             </div>
         </div>
-        <div class="blob top-0 right-0 transform translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-        <div class="blob bottom-0 left-0 transform -translate-x-1/2 translate-y-1/2 animate-pulse"></div>
     </section>
 
     <!-- About Section -->
@@ -619,7 +1377,7 @@
             <div class="flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20 fade-in">
                 <!-- Info Content -->
                 <div class="lg:w-1/2 w-full flex flex-col items-center lg:items-start text-center lg:text-left gap-6">
-                    <div class="glass-card p-8 shadow-xl rounded-2xl w-full animate-fade-in-up">
+                    <div class="about-info-card w-full animate-fade-in-up">
                         <h3 class="text-2xl font-semibold text-primary mb-4 flex items-center gap-2">
                             <i class="fas fa-lightbulb"></i> Who I Am
                         </h3>
@@ -627,36 +1385,36 @@
                             🚀 I'm a Management Information Systems student at UEL, passionate about <span class="text-primary font-semibold">digital transformation</span> and <span class="text-accent font-semibold">business innovation</span>.
                         </p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                            <div class="bg-white p-5 rounded-xl shadow-md flex items-center gap-4 hover:shadow-lg transition duration-300">
-                                <span class="bg-primary/10 text-primary p-3 rounded-full"><i class="fas fa-project-diagram text-2xl"></i></span>
-                                <div>
+                            <div class="about-feature-box">
+                                <span class="feature-icon"><span class="bg-primary/10 text-primary p-3 rounded-full"><i class="fas fa-project-diagram text-2xl"></i></span></span>
+                                <div class="feature-text">
                                     <h4 class="font-semibold text-base mb-1">Digital Transformation</h4>
                                     <p class="text-gray-600 text-sm">Optimizing business with tech</p>
                                 </div>
                             </div>
-                            <div class="bg-white p-5 rounded-xl shadow-md flex items-center gap-4 hover:shadow-lg transition duration-300">
-                                <span class="bg-accent/10 text-accent p-3 rounded-full"><i class="fas fa-chart-line text-2xl"></i></span>
-                                <div>
+                            <div class="about-feature-box">
+                                <span class="feature-icon"><span class="bg-accent/10 text-accent p-3 rounded-full"><i class="fas fa-chart-line text-2xl"></i></span></span>
+                                <div class="feature-text">
                                     <h4 class="font-semibold text-base mb-1">Business Analysis</h4>
                                     <p class="text-gray-600 text-sm">Bridging business & IT</p>
                                 </div>
                             </div>
-                            <div class="bg-white p-5 rounded-xl shadow-md flex items-center gap-4 hover:shadow-lg transition duration-300">
-                                <span class="bg-secondary/10 text-secondary p-3 rounded-full"><i class="fas fa-music text-2xl"></i></span>
-                                <div>
+                            <div class="about-feature-box">
+                                <span class="feature-icon"><span class="bg-secondary/10 text-secondary p-3 rounded-full"><i class="fas fa-music text-2xl"></i></span></span>
+                                <div class="feature-text">
                                     <h4 class="font-semibold text-base mb-1">Music Lover</h4>
                                     <p class="text-gray-600 text-sm">Jazz & Lo-fi beats</p>
                                 </div>
                             </div>
-                            <div class="bg-white p-5 rounded-xl shadow-md flex items-center gap-4 hover:shadow-lg transition duration-300">
-                                <span class="bg-dark/10 text-dark p-3 rounded-full"><i class="fas fa-gamepad text-2xl"></i></span>
-                                <div>
+                            <div class="about-feature-box">
+                                <span class="feature-icon"><span class="bg-dark/10 text-dark p-3 rounded-full"><i class="fas fa-gamepad text-2xl"></i></span></span>
+                                <div class="feature-text">
                                     <h4 class="font-semibold text-base mb-1">Fun Fact</h4>
                                     <p class="text-gray-600 text-sm">Can solve a Rubik's cube in 1 min!</p>
                                 </div>
                             </div>
                         </div>
-                        <a href="#contact" class="inline-block mt-2 px-8 py-3 bg-primary text-white rounded-full font-semibold shadow-lg hover:bg-accent hover:text-dark transition-all duration-300">Contact Me</a>
+                        <a href="#contact" class="inline-block mt-2 px-8 py-3 bg-primary text-white rounded-full font-semibold shadow-lg hover:bg-accent hover:text-dark transition-all duration-300 project-link">Contact Me</a>
                     </div>
                 </div>
                 <!-- Profile Image with animated icons -->
@@ -687,85 +1445,133 @@
             <div class="relative timeline pl-8 md:pl-16 fade-in" style="animation-delay: 0.2s;">
                 <!-- Experience 1 -->
                 <div class="relative timeline-item mb-12">
-                    <div class="glass-card p-6 md:p-8 shadow-xl rounded-xl hover:shadow-2xl transition duration-300">
-                        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
-                            <h3 class="text-xl font-semibold text-gray-800">Market Research & Digital Product Development</h3>
-                            <span class="inline-block mt-2 md:mt-0 px-3 py-1 bg-primary/10 text-primary font-medium rounded-full text-sm">07/2024 – Present</span>
+                    <div class="card"> <!-- Changed to Bulma card -->
+                        <div class="card-content">
+                            <div class="level mb-2 is-mobile"> <!-- Added is-mobile for responsiveness -->
+                                <div class="level-left">
+                                    <p class="title is-5">Market Research & Digital Product Development</p>
+                                </div>
+                                <div class="level-right">
+                                    <p class="tag is-primary is-light">07/2024 – Present</p>
+                                </div>
+                            </div>
+                            <div class="media mb-3">
+                                <div class="media-left">
+                                    <span class="icon is-medium has-text-grey-dark">
+                                        <i class="fas fa-building"></i>
+                                    </span>
+                                </div>
+                                <div class="media-content">
+                                    <p class="subtitle is-6">Lalasol</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <ul class="list-disc pl-5 text-gray-600 space-y-2 mt-0">
+                                    <li>Conducted comprehensive market research to identify customer needs and emerging market trends</li>
+                                    <li>Collaborated with cross-functional teams to develop innovative digital products</li>
+                                    <li>Analyzed product performance metrics and recommended strategic improvements</li>
+                                </ul>
+                            </div>
                         </div>
-                        <h4 class="text-lg font-medium text-gray-700 mb-2 flex items-center">
-                            <span class="bg-primary/10 text-primary p-2 rounded-full mr-3">
-                                <i class="fas fa-building text-sm"></i>
-                            </span>
-                            Lalasol
-                        </h4>
-                        <ul class="list-disc pl-5 text-gray-600 space-y-2 mt-4">
-                            <li>Conducted comprehensive market research to identify customer needs and emerging market trends</li>
-                            <li>Collaborated with cross-functional teams to develop innovative digital products</li>
-                            <li>Analyzed product performance metrics and recommended strategic improvements</li>
-                        </ul>
                     </div>
                 </div>
                 
                 <!-- Experience 2 -->
                 <div class="relative timeline-item mb-12">
-                    <div class="glass-card p-6 md:p-8 shadow-xl rounded-xl hover:shadow-2xl transition duration-300">
-                        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
-                            <h3 class="text-xl font-semibold text-gray-800">HR Officer</h3>
-                            <span class="inline-block mt-2 md:mt-0 px-3 py-1 bg-primary/10 text-primary font-medium rounded-full text-sm">09/2023 – Present</span>
+                    <div class="card"> <!-- Changed to Bulma card -->
+                        <div class="card-content">
+                            <div class="level mb-2 is-mobile">
+                                <div class="level-left">
+                                    <p class="title is-5">HR Officer</p>
+                                </div>
+                                <div class="level-right">
+                                    <p class="tag is-primary is-light">09/2023 – Present</p>
+                                </div>
+                            </div>
+                            <div class="media mb-3">
+                                <div class="media-left">
+                                    <span class="icon is-medium has-text-grey-dark">
+                                        <i class="fas fa-users"></i>
+                                    </span>
+                                </div>
+                                <div class="media-content">
+                                    <p class="subtitle is-6">ITB CLUB</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <ul class="list-disc pl-5 text-gray-600 space-y-2 mt-0">
+                                    <li>Managed end-to-end recruitment processes and streamlined onboarding for new members</li>
+                                    <li>Organized professional training programs and team-building activities</li>
+                                    <li>Maintained comprehensive HR records and handled member relations</li>
+                                </ul>
+                            </div>
                         </div>
-                        <h4 class="text-lg font-medium text-gray-700 mb-2 flex items-center">
-                            <span class="bg-primary/10 text-primary p-2 rounded-full mr-3">
-                                <i class="fas fa-users text-sm"></i>
-                            </span>
-                            ITB CLUB
-                        </h4>
-                        <ul class="list-disc pl-5 text-gray-600 space-y-2 mt-4">
-                            <li>Managed end-to-end recruitment processes and streamlined onboarding for new members</li>
-                            <li>Organized professional training programs and team-building activities</li>
-                            <li>Maintained comprehensive HR records and handled member relations</li>
-                        </ul>
                     </div>
                 </div>
                 
                 <!-- Experience 3 -->
                 <div class="relative timeline-item mb-12">
-                    <div class="glass-card p-6 md:p-8 shadow-xl rounded-xl hover:shadow-2xl transition duration-300">
-                        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
-                            <h3 class="text-xl font-semibold text-gray-800">Digital Marketing Intern</h3>
-                            <span class="inline-block mt-2 md:mt-0 px-3 py-1 bg-primary/10 text-primary font-medium rounded-full text-sm">05/2024 – 08/2024</span>
+                    <div class="card"> <!-- Changed to Bulma card -->
+                        <div class="card-content">
+                            <div class="level mb-2 is-mobile">
+                                <div class="level-left">
+                                    <p class="title is-5">Digital Marketing Intern</p>
+                                </div>
+                                <div class="level-right">
+                                    <p class="tag is-primary is-light">05/2024 – 08/2024</p>
+                                </div>
+                            </div>
+                            <div class="media mb-3">
+                                <div class="media-left">
+                                    <span class="icon is-medium has-text-grey-dark">
+                                        <i class="fas fa-hashtag"></i>
+                                    </span>
+                                </div>
+                                <div class="media-content">
+                                    <p class="subtitle is-6">STK Digital Media</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <ul class="list-disc pl-5 text-gray-600 space-y-2 mt-0">
+                                    <li>Assisted in creating and implementing strategic digital marketing campaigns</li>
+                                    <li>Managed social media accounts and developed engaging content</li>
+                                    <li>Analyzed campaign performance using advanced analytics tools</li>
+                                </ul>
+                            </div>
                         </div>
-                        <h4 class="text-lg font-medium text-gray-700 mb-2 flex items-center">
-                            <span class="bg-primary/10 text-primary p-2 rounded-full mr-3">
-                                <i class="fas fa-hashtag text-sm"></i>
-                            </span>
-                            STK Digital Media
-                        </h4>
-                        <ul class="list-disc pl-5 text-gray-600 space-y-2 mt-4">
-                            <li>Assisted in creating and implementing strategic digital marketing campaigns</li>
-                            <li>Managed social media accounts and developed engaging content</li>
-                            <li>Analyzed campaign performance using advanced analytics tools</li>
-                        </ul>
                     </div>
                 </div>
                 
                 <!-- Experience 4 -->
                 <div class="relative timeline-item">
-                    <div class="glass-card p-6 md:p-8 shadow-xl rounded-xl hover:shadow-2xl transition duration-300">
-                        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
-                            <h3 class="text-xl font-semibold text-gray-800">Vietnamese Language Expert</h3>
-                            <span class="inline-block mt-2 md:mt-0 px-3 py-1 bg-primary/10 text-primary font-medium rounded-full text-sm">2019 – 2023</span>
+                    <div class="card"> <!-- Changed to Bulma card -->
+                        <div class="card-content">
+                            <div class="level mb-2 is-mobile">
+                                <div class="level-left">
+                                    <p class="title is-5">Vietnamese Language Expert</p>
+                                </div>
+                                <div class="level-right">
+                                    <p class="tag is-primary is-light">2019 – 2023</p>
+                                </div>
+                            </div>
+                            <div class="media mb-3">
+                                <div class="media-left">
+                                    <span class="icon is-medium has-text-grey-dark">
+                                        <i class="fas fa-language"></i>
+                                    </span>
+                                </div>
+                                <div class="media-content">
+                                    <p class="subtitle is-6">Lê Quý Đôn</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <ul class="list-disc pl-5 text-gray-600 space-y-2 mt-0">
+                                    <li>Provided comprehensive Vietnamese language instruction and cultural guidance</li>
+                                    <li>Developed customized educational materials and lesson plans</li>
+                                    <li>Assisted students in language acquisition and cultural adaptation</li>
+                                </ul>
+                            </div>
                         </div>
-                        <h4 class="text-lg font-medium text-gray-700 mb-2 flex items-center">
-                            <span class="bg-primary/10 text-primary p-2 rounded-full mr-3">
-                                <i class="fas fa-language text-sm"></i>
-                            </span>
-                            Lê Quý Đôn
-                        </h4>
-                        <ul class="list-disc pl-5 text-gray-600 space-y-2 mt-4">
-                            <li>Provided comprehensive Vietnamese language instruction and cultural guidance</li>
-                            <li>Developed customized educational materials and lesson plans</li>
-                            <li>Assisted students in language acquisition and cultural adaptation</li>
-                        </ul>
                     </div>
                 </div>
             </div>
@@ -773,300 +1579,332 @@
     </section>
 
     <!-- Projects Section -->
-    <section id="projects" class="py-20 bg-gradient-to-br from-primary via-accent to-light relative">
+    <section id="projects" class="py-20 bg-gray-50 relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16 fade-in">
-                <h2 class="section-title text-4xl font-extrabold text-white tracking-tight mb-4" style="letter-spacing: 1px;">
+            <div class="text-center mb-12 fade-in projects-title-block"> <!-- Corrected comment and added projects-title-block class -->
+                <h2 class="section-title text-4xl font-extrabold text-gray-800 tracking-tight mb-4 relative" style="letter-spacing: 1px;"> 
                     Featured Projects
                 </h2>
-                <p class="text-white/90 max-w-2xl mx-auto mt-4 text-lg font-medium">
-                    A showcase of my notable projects in both academic and professional settings
+                <p class="text-gray-600 max-w-2xl mx-auto mt-6 text-lg font-medium section-subtitle"> <!-- mt-6 for more space, and new class -->
+                    A showcase of my notable projects, starting with a key automation demonstration.
                 </p>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-                <!-- Project 0: Data Analysis Dashboard -->
-                <div class="group bg-white/90 rounded-3xl shadow-2xl hover:scale-105 hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden border border-accent/20">
-                    <div class="h-56 bg-gradient-to-tr from-primary via-accent to-light flex items-center justify-center overflow-hidden">
-                        <img src="assets/images/data-analysis.png" alt="Data Analysis with R & Python" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="flex-1 flex flex-col p-6">
-                        <div class="flex flex-wrap gap-2 mb-2">
-                            <span class="px-3 py-1 bg-gradient-to-r from-primary to-accent text-white text-xs rounded-full font-semibold">R</span>
-                            <span class="px-3 py-1 bg-gradient-to-r from-accent to-secondary text-white text-xs rounded-full font-semibold">Python</span>
-                            <span class="px-3 py-1 bg-gradient-to-r from-secondary to-primary text-white text-xs rounded-full font-semibold">Data Viz</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-primary mb-2">Data Analysis Dashboard</h3>
-                        <p class="text-gray-700 mb-4 flex-1">Comprehensive analysis of global Internet usage trends, featuring interactive visualizations, dynamic tables, and an interactive dashboard. Built with R and Python (Pandas, Matplotlib), optimized for in-depth analysis and report presentation.</p>
-                        <a href="https://github.com/Royal2005-coder" target="_blank" class="inline-block mt-auto px-6 py-2 bg-gradient-to-r from-primary to-accent text-white rounded-full font-semibold shadow-md hover:scale-105 transition-all duration-300">View Details</a>
-                    </div>
-                </div>
 
-                <!-- Project 1: Inventory Management System -->
-                <div class="group bg-white/90 rounded-3xl shadow-2xl hover:scale-105 hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden border border-accent/20">
-                    <div class="h-56 bg-gradient-to-tr from-primary via-accent to-light flex items-center justify-center overflow-hidden">
-                        <img src="assets/images/inventory.png" alt="Inventory Management System" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="flex-1 flex flex-col p-6">
-                        <div class="flex flex-wrap gap-2 mb-2">
-                            <span class="px-3 py-1 bg-gradient-to-r from-primary to-accent text-white text-xs rounded-full font-semibold">Python OOP</span>
-                            <span class="px-3 py-1 bg-gradient-to-r from-accent to-secondary text-white text-xs rounded-full font-semibold">MongoDB</span>
-                            <span class="px-3 py-1 bg-gradient-to-r from-secondary to-primary text-white text-xs rounded-full font-semibold">QtDesigner</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-primary mb-2">Inventory Management System</h3>
-                        <p class="text-gray-700 mb-4 flex-1">A comprehensive inventory management application built with Python OOP, MongoDB, and QtDesigner. Features include user authentication, product management, stock in/out operations, and inventory statistics. Full-stack development role, handling both UI and data processing.</p>
-                        <a href="https://github.com/Royal2005-coder" target="_blank" class="inline-block mt-auto px-6 py-2 bg-gradient-to-r from-primary to-accent text-white rounded-full font-semibold shadow-md hover:scale-105 transition-all duration-300">View Details</a>
-                    </div>
+            <!-- Featured n8n Workflow Showcase Video -->
+            <div class="featured-video-section fade-in mb-16 relative"> 
+                <div class="decorative-shape shape-1"></div> 
+                <div class="decorative-shape shape-2"></div> 
+                <div class="featured-video-wrapper animate-fade-in-up" style="animation-delay: 0.1s;"> 
+                    <iframe src="https://drive.google.com/file/d/1_C8g93EhLfC1ygVZMkC7BT20dDGP1E2C/preview" allow="autoplay; encrypted-media" frameborder="0" allowfullscreen></iframe>
                 </div>
-
-                <!-- Project 2: TechStore E-commerce Website -->
-                <div class="group bg-white/90 rounded-3xl shadow-2xl hover:scale-105 hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden border border-accent/20">
-                    <div class="h-56 bg-gradient-to-tr from-primary via-accent to-light flex items-center justify-center overflow-hidden">
-                        <img src="assets/images/techstore.png" alt="TechStore E-commerce Website" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="flex-1 flex flex-col p-6">
-                        <div class="flex flex-wrap gap-2 mb-2">
-                            <span class="px-3 py-1 bg-gradient-to-r from-primary to-accent text-white text-xs rounded-full font-semibold">ReactJS</span>
-                            <span class="px-3 py-1 bg-gradient-to-r from-accent to-secondary text-white text-xs rounded-full font-semibold">Redux</span>
-                            <span class="px-3 py-1 bg-gradient-to-r from-secondary to-primary text-white text-xs rounded-full font-semibold">Firebase</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-primary mb-2">TechStore E-commerce Website</h3>
-                        <p class="text-gray-700 mb-4 flex-1">Modern e-commerce platform for technology products with advanced filtering, shopping cart functionality, and secure payment processing. Frontend developer role.</p>
-                        <a href="https://github.com/Royal2005-coder" target="_blank" class="inline-block mt-auto px-6 py-2 bg-gradient-to-r from-primary to-accent text-white rounded-full font-semibold shadow-md hover:scale-105 transition-all duration-300">View Details</a>
-                    </div>
-                </div>
-
-                <!-- Project 3: Santorini Dreams Travel Landing Page -->
-                <div class="group bg-white/90 rounded-3xl shadow-2xl hover:scale-105 hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden border border-accent/20">
-                    <div class="h-56 bg-gradient-to-tr from-primary via-accent to-light flex items-center justify-center overflow-hidden">
-                        <img src="assets/images/santorini.png" alt="Santorini Dreams Travel Landing Page" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="flex-1 flex flex-col p-6">
-                        <div class="flex flex-wrap gap-2 mb-2">
-                            <span class="px-3 py-1 bg-gradient-to-r from-primary to-accent text-white text-xs rounded-full font-semibold">HTML</span>
-                            <span class="px-3 py-1 bg-gradient-to-r from-accent to-secondary text-white text-xs rounded-full font-semibold">CSS</span>
-                            <span class="px-3 py-1 bg-gradient-to-r from-secondary to-primary text-white text-xs rounded-full font-semibold">JavaScript</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-primary mb-2">Santorini Dreams Travel Landing Page</h3>
-                        <p class="text-gray-700 mb-4 flex-1">Engaging landing page for Santorini tourism, optimized for user experience and fully responsive across all devices.</p>
-                        <a href="https://github.com/Royal2005-coder" target="_blank" class="inline-block mt-auto px-6 py-2 bg-gradient-to-r from-primary to-accent text-white rounded-full font-semibold shadow-md hover:scale-105 transition-all duration-300">View Details</a>
-                    </div>
-                </div>
-
-                <!-- Project 4: Automation Workflow -->
-                <div class="group bg-white/90 rounded-3xl shadow-2xl hover:scale-105 hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden border border-accent/20">
-                    <div class="h-56 bg-gradient-to-tr from-primary via-accent to-light flex items-center justify-center overflow-hidden">
-                        <img src="assets/images/automation.png" alt="Automation Workflow" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="flex-1 flex flex-col p-6">
-                        <div class="flex flex-wrap gap-2 mb-2">
-                            <span class="px-3 py-1 bg-gradient-to-r from-primary to-accent text-white text-xs rounded-full font-semibold">Integromat/Make</span>
-                            <span class="px-3 py-1 bg-gradient-to-r from-accent to-secondary text-white text-xs rounded-full font-semibold">Gmail</span>
-                            <span class="px-3 py-1 bg-gradient-to-r from-secondary to-primary text-white text-xs rounded-full font-semibold">Google Sheets</span>
-                            <span class="px-3 py-1 bg-gradient-to-r from-primary to-accent text-white text-xs rounded-full font-semibold">MongoDB</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-primary mb-2">Automation Workflow</h3>
-                        <p class="text-gray-700 mb-4 flex-1">Designed automated workflow for email processing, data storage in Google Sheets and MongoDB, utilizing no-code/low-code platforms.</p>
-                        <a href="https://github.com/Royal2005-coder" target="_blank" class="inline-block mt-auto px-6 py-2 bg-gradient-to-r from-primary to-accent text-white rounded-full font-semibold shadow-md hover:scale-105 transition-all duration-300">View Details</a>
-                    </div>
-                </div>
-
-                <!-- Project 5: Business Intelligence Competition Registration -->
-                <div class="group bg-white/90 rounded-3xl shadow-2xl hover:scale-105 hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden border border-accent/20">
-                    <div class="h-56 bg-gradient-to-tr from-primary via-accent to-light flex items-center justify-center overflow-hidden">
-                        <img src="assets/images/bi.png" alt="Business Intelligence Competition Registration" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="flex-1 flex flex-col p-6">
-                        <div class="flex flex-wrap gap-2 mb-2">
-                            <span class="px-3 py-1 bg-gradient-to-r from-primary to-accent text-white text-xs rounded-full font-semibold">ReactJS</span>
-                            <span class="px-3 py-1 bg-gradient-to-r from-accent to-secondary text-white text-xs rounded-full font-semibold">NodeJS</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-primary mb-2">Business Intelligence Competition Registration</h3>
-                        <p class="text-gray-700 mb-4 flex-1">Modern registration platform for data analysis competition, featuring sleek interface, authentication system, and participant management.</p>
-                        <a href="https://github.com/Royal2005-coder" target="_blank" class="inline-block mt-auto px-6 py-2 bg-gradient-to-r from-primary to-accent text-white rounded-full font-semibold shadow-md hover:scale-105 transition-all duration-300">View Details</a>
-                    </div>
-                </div>
-
-                <!-- Project 6: Product Card UI (E-commerce) -->
-                <div class="group bg-white/90 rounded-3xl shadow-2xl hover:scale-105 hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden border border-accent/20">
-                    <div class="h-56 bg-gradient-to-tr from-primary via-accent to-light flex items-center justify-center overflow-hidden">
-                        <img src="assets/images/product-card.png" alt="Product Card UI" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="flex-1 flex flex-col p-6">
-                        <div class="flex flex-wrap gap-2 mb-2">
-                            <span class="px-3 py-1 bg-gradient-to-r from-primary to-accent text-white text-xs rounded-full font-semibold">ReactJS</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-primary mb-2">Product Card UI (E-commerce)</h3>
-                        <p class="text-gray-700 mb-4 flex-1">Designed and implemented product card interface for e-commerce website, focusing on optimal UX/UI principles.</p>
-                        <a href="https://github.com/Royal2005-coder" target="_blank" class="inline-block mt-auto px-6 py-2 bg-gradient-to-r from-primary to-accent text-white rounded-full font-semibold shadow-md hover:scale-105 transition-all duration-300">View Details</a>
-                    </div>
-                </div>
-
-                <!-- Project 7: Personalized Mug Design -->
-                <div class="group bg-white/90 rounded-3xl shadow-2xl hover:scale-105 hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden border border-accent/20">
-                    <div class="h-56 bg-gradient-to-tr from-primary via-accent to-light flex items-center justify-center overflow-hidden">
-                        <img src="assets/images/mug.png" alt="Personalized Mug Design" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="flex-1 flex flex-col p-6">
-                        <div class="flex flex-wrap gap-2 mb-2">
-                            <span class="px-3 py-1 bg-gradient-to-r from-primary to-accent text-white text-xs rounded-full font-semibold">Photoshop</span>
-                            <span class="px-3 py-1 bg-gradient-to-r from-accent to-secondary text-white text-xs rounded-full font-semibold">Illustrator</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-primary mb-2">Personalized Mug Design</h3>
-                        <p class="text-gray-700 mb-4 flex-1">Created personalized mug designs using Photoshop/Illustrator, serving online retail needs with custom name printing.</p>
-                        <a href="https://github.com/Royal2005-coder" target="_blank" class="inline-block mt-auto px-6 py-2 bg-gradient-to-r from-primary to-accent text-white rounded-full font-semibold shadow-md hover:scale-105 transition-all duration-300">View Details</a>
-                    </div>
-                </div>
-
-                <!-- Project 8: Personalized Flower Illustration for Mom -->
-                <div class="group bg-white/90 rounded-3xl shadow-2xl hover:scale-105 hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden border border-accent/20">
-                    <div class="h-56 bg-gradient-to-tr from-primary via-accent to-light flex items-center justify-center overflow-hidden">
-                        <img src="assets/images/flower.png" alt="Personalized Flower Illustration for Mom" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="flex-1 flex flex-col p-6">
-                        <div class="flex flex-wrap gap-2 mb-2">
-                            <span class="px-3 py-1 bg-gradient-to-r from-primary to-accent text-white text-xs rounded-full font-semibold">Procreate</span>
-                            <span class="px-3 py-1 bg-gradient-to-r from-accent to-secondary text-white text-xs rounded-full font-semibold">Photoshop</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-primary mb-2">Personalized Flower Illustration for Mom</h3>
-                        <p class="text-gray-700 mb-4 flex-1">Digital hand-drawn flower illustration for Mother's Day gift, created using Procreate/Photoshop.</p>
-                        <a href="https://github.com/Royal2005-coder" target="_blank" class="inline-block mt-auto px-6 py-2 bg-gradient-to-r from-primary to-accent text-white rounded-full font-semibold shadow-md hover:scale-105 transition-all duration-300">View Details</a>
-                    </div>
+                <div class="featured-video-caption animate-fade-in-up"> 
+                    <h3>n8n Workflow Automation Showcase</h3>
+                    <p>This video highlights key automated business process workflows I've designed using n8n, demonstrating practical applications of workflow automation to enhance efficiency and productivity.</p>
                 </div>
             </div>
-            <div class="flex justify-center mt-10">
-                <a href="https://github.com/Royal2005-coder" target="_blank" class="btn-hover-effect bg-gradient-to-r from-primary to-accent text-white px-8 py-3 rounded-full font-semibold text-lg shadow-lg transition-all duration-300 hover:bg-accent hover:text-dark hover:scale-105">View More Projects on Github</a>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 projects-grid"> <!-- Added projects-grid class -->
+                <!-- Project 0: Data Analysis Dashboard -->
+                <a href="https://github.com/Royal2005-coder" target="_blank" rel="noopener noreferrer" class="project-card-link">
+                    <div class="project-card-modern">
+                        <div class="project-image-wrapper">
+                            <img src="assets/images/data-analysis.png" alt="Data Analysis with R & Python" class="project-image">
+                        </div>
+                        <div class="project-content">
+                            <div class="flex flex-wrap gap-2 mb-3 project-tags">
+                                <span>R</span>
+                                <span>Python</span>
+                                <span>Data Viz</span>
+                            </div>
+                            <h3 class="project-title">Data Analysis Dashboard</h3>
+                            <p class="project-description">Comprehensive analysis of global Internet usage trends, featuring interactive visualizations, dynamic tables, and an interactive dashboard. Built with R and Python (Pandas, Matplotlib), optimized for in-depth analysis and report presentation.</p>
+                            <!-- Button removed -->
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 1: Inventory Management System -->
+                <a href="https://github.com/Royal2005-coder" target="_blank" rel="noopener noreferrer" class="project-card-link">
+                    <div class="project-card-modern">
+                        <div class="project-image-wrapper">
+                            <img src="assets/images/inventory.png" alt="Inventory Management System" class="project-image">
+                        </div>
+                        <div class="project-content">
+                            <div class="flex flex-wrap gap-2 mb-3 project-tags">
+                                <span>Python OOP</span>
+                                <span>MongoDB</span>
+                                <span>QtDesigner</span>
+                            </div>
+                            <h3 class="project-title">Inventory Management System</h3>
+                            <p class="project-description">A comprehensive inventory management application built with Python OOP, MongoDB, and QtDesigner. Features include user authentication, product management, stock in/out operations, and inventory statistics. Full-stack development role, handling both UI and data processing.</p>
+                            <!-- Button removed -->
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 2: TechStore E-commerce Website -->
+                <a href="https://github.com/Royal2005-coder" target="_blank" rel="noopener noreferrer" class="project-card-link">
+                    <div class="project-card-modern">
+                        <div class="project-image-wrapper">
+                            <img src="assets/images/techstore.png" alt="TechStore E-commerce Website" class="project-image">
+                        </div>
+                        <div class="project-content">
+                            <div class="flex flex-wrap gap-2 mb-3 project-tags">
+                                <span>ReactJS</span>
+                                <span>Redux</span>
+                                <span>Firebase</span>
+                            </div>
+                            <h3 class="project-title">TechStore E-commerce Website</h3>
+                            <p class="project-description">Modern e-commerce platform for technology products with advanced filtering, shopping cart functionality, and secure payment processing. Frontend developer role.</p>
+                            <!-- Button removed -->
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 3: Santorini Dreams Travel Landing Page -->
+                <a href="https://github.com/Royal2005-coder" target="_blank" rel="noopener noreferrer" class="project-card-link">
+                    <div class="project-card-modern">
+                        <div class="project-image-wrapper">
+                            <img src="assets/images/santorini.png" alt="Santorini Dreams Travel Landing Page" class="project-image">
+                        </div>
+                        <div class="project-content">
+                            <div class="flex flex-wrap gap-2 mb-3 project-tags">
+                                <span>HTML</span>
+                                <span>CSS</span>
+                                <span>JavaScript</span>
+                            </div>
+                            <h3 class="project-title">Santorini Dreams Travel Landing Page</h3>
+                            <p class="project-description">Engaging landing page for Santorini tourism, optimized for user experience and fully responsive across all devices.</p>
+                            <!-- Button removed -->
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 4: Automation Workflow -->
+                <a href="https://github.com/Royal2005-coder" target="_blank" rel="noopener noreferrer" class="project-card-link">
+                    <div class="project-card-modern">
+                        <div class="project-image-wrapper">
+                            <img src="assets/images/automation.png" alt="Automation Workflow" class="project-image">
+                        </div>
+                        <div class="project-content">
+                            <div class="flex flex-wrap gap-2 mb-3 project-tags">
+                                <span>Integromat/Make</span>
+                                <span>Gmail</span>
+                                <span>Google Sheets</span>
+                                <span>MongoDB</span>
+                            </div>
+                            <h3 class="project-title">Automation Workflow</h3>
+                            <p class="project-description">Designed automated workflow for email processing, data storage in Google Sheets and MongoDB, utilizing no-code/low-code platforms.</p>
+                            <!-- Button removed -->
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 5: Business Intelligence Competition Registration -->
+                <a href="https://github.com/Royal2005-coder" target="_blank" rel="noopener noreferrer" class="project-card-link">
+                    <div class="project-card-modern">
+                        <div class="project-image-wrapper">
+                            <img src="assets/images/bi.png" alt="Business Intelligence Competition Registration" class="project-image">
+                        </div>
+                        <div class="project-content">
+                            <div class="flex flex-wrap gap-2 mb-3 project-tags">
+                                <span>ReactJS</span>
+                                <span>NodeJS</span>
+                            </div>
+                            <h3 class="project-title">Business Intelligence Competition Registration</h3>
+                            <p class="project-description">Modern registration platform for data analysis competition, featuring sleek interface, authentication system, and participant management.</p>
+                            <!-- Button removed -->
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 6: Product Card UI (E-commerce) -->
+                <a href="https://github.com/Royal2005-coder" target="_blank" rel="noopener noreferrer" class="project-card-link">
+                    <div class="project-card-modern">
+                        <div class="project-image-wrapper">
+                            <img src="assets/images/product-card.png" alt="Product Card UI" class="project-image">
+                        </div>
+                        <div class="project-content">
+                            <div class="flex flex-wrap gap-2 mb-3 project-tags">
+                                <span>ReactJS</span>
+                            </div>
+                            <h3 class="project-title">Product Card UI (E-commerce)</h3>
+                            <p class="project-description">Designed and implemented product card interface for e-commerce website, focusing on optimal UX/UI principles.</p>
+                            <!-- Button removed -->
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 7: Personalized Mug Design -->
+                <a href="https://github.com/Royal2005-coder" target="_blank" rel="noopener noreferrer" class="project-card-link">
+                    <div class="project-card-modern">
+                        <div class="project-image-wrapper">
+                            <img src="assets/images/mug.png" alt="Personalized Mug Design" class="project-image">
+                        </div>
+                        <div class="project-content">
+                            <div class="flex flex-wrap gap-2 mb-3 project-tags">
+                                <span>Photoshop</span>
+                                <span>Illustrator</span>
+                            </div>
+                            <h3 class="project-title">Personalized Mug Design</h3>
+                            <p class="project-description">Created personalized mug designs using Photoshop/Illustrator, serving online retail needs with custom name printing.</p>
+                            <!-- Button removed -->
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 8: Personalized Flower Illustration for Mom -->
+                <a href="https://github.com/Royal2005-coder" target="_blank" rel="noopener noreferrer" class="project-card-link">
+                    <div class="project-card-modern">
+                        <div class="project-image-wrapper">
+                            <img src="assets/images/flower.png" alt="Personalized Flower Illustration for Mom" class="project-image">
+                        </div>
+                        <div class="project-content">
+                            <div class="flex flex-wrap gap-2 mb-3 project-tags">
+                                <span>Procreate</span>
+                                <span>Photoshop</span>
+                            </div>
+                            <h3 class="project-title">Personalized Flower Illustration for Mom</h3>
+                            <p class="project-description">Digital hand-drawn flower illustration for Mother's Day gift, created using Procreate/Photoshop.</p>
+                            <!-- Button removed -->
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="flex justify-center mt-16">
+                <a href="https://github.com/Royal2005-coder" target="_blank" class="btn-hover-effect bg-gradient-to-r from-primary to-accent text-white px-10 py-4 rounded-full font-semibold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:from-accent hover:to-secondary hover:scale-105">View More Projects on Github</a>
             </div>
         </div>
     </section>
 
     <!-- Skills & Certifications Section -->
-    <section id="skills" class="py-20 bg-gray-50 relative overflow-hidden">
+    <section id="skills" class="py-20 bg-gray-50 relative overflow-hidden skills-section">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16 fade-in">
-                <h2 class="section-title text-3xl font-bold text-gray-800">Skills & Certifications</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto mt-4">
+            <div class="text-center mb-16 fade-in projects-title-block"> <!-- Reusing projects-title-block for main title styling -->
+                <h2 class="section-title text-3xl font-bold text-gray-800 relative">Skills & Certifications</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto mt-6 section-subtitle"> 
                     My technical competencies and professional certifications
                 </p>
             </div>
             
-            <div class="mb-12 fade-in" style="animation-delay: 0.2s;">
-                <h3 class="text-2xl font-semibold text-gray-800 mb-8 text-center">Technical Skills</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div class="skill-card bg-white p-6 rounded-xl shadow-md transition duration-300 hover:shadow-lg">
-                        <div class="text-primary mb-3 text-center">
-                            <i class="fab fa-sap text-5xl"></i>
+            <div class="mb-16 fade-in" style="animation-delay: 0.2s;"> 
+                <h3 class="subsection-title">Technical Skills</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8"> 
+                    <div class="modern-skill-card">
+                        <div class="skill-icon">
+                            <i class="fab fa-sap"></i>
                         </div>
-                        <h4 class="font-semibold text-lg mb-2 text-center">SAP</h4>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="bg-gradient-to-r from-primary to-accent h-2.5 rounded-full" style="width: 85%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-card bg-white p-6 rounded-xl shadow-md transition duration-300 hover:shadow-lg">
-                        <div class="text-primary mb-3 text-center">
-                            <i class="fab fa-python text-5xl"></i>
-                        </div>
-                        <h4 class="font-semibold text-lg mb-2 text-center">Python</h4>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="bg-gradient-to-r from-primary to-accent h-2.5 rounded-full" style="width: 75%"></div>
+                        <h4 class="skill-name">SAP</h4>
+                        <div class="skill-progress-bar-container">
+                            <div class="skill-progress-bar" data-skill-level="85%"></div>
                         </div>
                     </div>
-                    <div class="skill-card bg-white p-6 rounded-xl shadow-md transition duration-300 hover:shadow-lg">
-                        <div class="text-primary mb-3 text-center">
-                            <i class="fas fa-chart-bar text-5xl"></i>
+                    <div class="modern-skill-card">
+                        <div class="skill-icon">
+                            <i class="fab fa-python"></i>
                         </div>
-                        <h4 class="font-semibold text-lg mb-2 text-center">Power BI</h4>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="bg-gradient-to-r from-primary to-accent h-2.5 rounded-full" style="width: 80%"></div>
+                        <h4 class="skill-name">Python</h4>
+                        <div class="skill-progress-bar-container">
+                            <div class="skill-progress-bar" data-skill-level="75%"></div>
                         </div>
                     </div>
-                    <div class="skill-card bg-white p-6 rounded-xl shadow-md transition duration-300 hover:shadow-lg">
-                        <div class="text-primary mb-3 text-center">
-                            <i class="fas fa-project-diagram text-5xl"></i>
+                    <div class="modern-skill-card">
+                        <div class="skill-icon">
+                            <i class="fas fa-chart-bar"></i>
                         </div>
-                        <h4 class="font-semibold text-lg mb-2 text-center">Agile</h4>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="bg-gradient-to-r from-primary to-accent h-2.5 rounded-full" style="width: 90%"></div>
+                        <h4 class="skill-name">Power BI</h4>
+                        <div class="skill-progress-bar-container">
+                            <div class="skill-progress-bar" data-skill-level="80%"></div>
+                        </div>
+                    </div>
+                    <div class="modern-skill-card">
+                        <div class="skill-icon">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <h4 class="skill-name">Agile</h4>
+                        <div class="skill-progress-bar-container">
+                            <div class="skill-progress-bar" data-skill-level="90%"></div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="mb-12 fade-in" style="animation-delay: 0.4s;">
-                <h3 class="text-2xl font-semibold text-gray-800 mb-8 text-center">Soft Skills</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div class="skill-card bg-white p-6 rounded-xl shadow-md transition duration-300 hover:shadow-lg">
-                        <div class="text-primary mb-3 text-center">
-                            <i class="fas fa-comments text-5xl"></i>
+            <div class="mb-16 fade-in" style="animation-delay: 0.4s;"> 
+                <h3 class="subsection-title">Soft Skills</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8"> 
+                    <div class="modern-skill-card">
+                        <div class="skill-icon">
+                            <i class="fas fa-comments"></i>
                         </div>
-                        <h4 class="font-semibold text-lg mb-2 text-center">Communication</h4>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="bg-gradient-to-r from-primary to-accent h-2.5 rounded-full" style="width: 95%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-card bg-white p-6 rounded-xl shadow-md transition duration-300 hover:shadow-lg">
-                        <div class="text-primary mb-3 text-center">
-                            <i class="fas fa-users text-5xl"></i>
-                        </div>
-                        <h4 class="font-semibold text-lg mb-2 text-center">Teamwork</h4>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="bg-gradient-to-r from-primary to-accent h-2.5 rounded-full" style="width: 90%"></div>
+                        <h4 class="skill-name">Communication</h4>
+                        <div class="skill-progress-bar-container">
+                            <div class="skill-progress-bar" data-skill-level="95%"></div>
                         </div>
                     </div>
-                    <div class="skill-card bg-white p-6 rounded-xl shadow-md transition duration-300 hover:shadow-lg">
-                        <div class="text-primary mb-3 text-center">
-                            <i class="fas fa-lightbulb text-5xl"></i>
+                    <div class="modern-skill-card">
+                        <div class="skill-icon">
+                            <i class="fas fa-users"></i>
                         </div>
-                        <h4 class="font-semibold text-lg mb-2 text-center">Problem Solving</h4>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="bg-gradient-to-r from-primary to-accent h-2.5 rounded-full" style="width: 85%"></div>
+                        <h4 class="skill-name">Teamwork</h4>
+                        <div class="skill-progress-bar-container">
+                            <div class="skill-progress-bar" data-skill-level="90%"></div>
                         </div>
                     </div>
-                    <div class="skill-card bg-white p-6 rounded-xl shadow-md transition duration-300 hover:shadow-lg">
-                        <div class="text-primary mb-3 text-center">
-                            <i class="fas fa-clock text-5xl"></i>
+                    <div class="modern-skill-card">
+                        <div class="skill-icon">
+                            <i class="fas fa-lightbulb"></i>
                         </div>
-                        <h4 class="font-semibold text-lg mb-2 text-center">Time Management</h4>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="bg-gradient-to-r from-primary to-accent h-2.5 rounded-full" style="width: 80%"></div>
+                        <h4 class="skill-name">Problem Solving</h4>
+                        <div class="skill-progress-bar-container">
+                            <div class="skill-progress-bar" data-skill-level="85%"></div>
+                        </div>
+                    </div>
+                    <div class="modern-skill-card">
+                        <div class="skill-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h4 class="skill-name">Time Management</h4>
+                        <div class="skill-progress-bar-container">
+                            <div class="skill-progress-bar" data-skill-level="80%"></div>
                         </div>
                     </div>
                 </div>
             </div>
             
             <div class="fade-in" style="animation-delay: 0.6s;">
-                <h3 class="text-2xl font-semibold text-gray-800 mb-8 text-center">Certifications</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300">
+                <h3 class="subsection-title">Certifications</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"> 
+                    <div class="content-card-modern">
                         <div class="flex items-start mb-4">
-                            <div class="bg-primary/10 text-primary p-3 rounded-lg mr-4">
+                            <div class="icon-wrapper bg-primary/10 text-primary p-3 rounded-lg mr-4">
                                 <i class="fas fa-certificate text-2xl"></i>
                             </div>
                             <div>
-                                <h4 class="font-semibold text-lg">SAP Certified Associate</h4>
+                                <h4 class="card-title mb-1">SAP Certified Associate</h4>
                                 <p class="text-gray-600 text-sm">Issued: 2023</p>
                             </div>
                         </div>
                         <p class="text-gray-600 text-sm">Fundamentals of SAP business processes and solutions with focus on digital transformation.</p>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300">
+                    <div class="content-card-modern">
                         <div class="flex items-start mb-4">
-                            <div class="bg-primary/10 text-primary p-3 rounded-lg mr-4">
+                            <div class="icon-wrapper bg-primary/10 text-primary p-3 rounded-lg mr-4">
                                 <i class="fas fa-certificate text-2xl"></i>
                             </div>
                             <div>
-                                <h4 class="font-semibold text-lg">Agile Project Management</h4>
+                                <h4 class="card-title mb-1">Agile Project Management</h4>
                                 <p class="text-gray-600 text-sm">Issued: 2022</p>
                             </div>
                         </div>
                         <p class="text-gray-600 text-sm">Scrum methodologies and agile project delivery for digital product development.</p>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300">
+                    <div class="content-card-modern">
                         <div class="flex items-start mb-4">
-                            <div class="bg-primary/10 text-primary p-3 rounded-lg mr-4">
+                            <div class="icon-wrapper bg-primary/10 text-primary p-3 rounded-lg mr-4">
                                 <i class="fas fa-certificate text-2xl"></i>
                             </div>
                             <div>
-                                <h4 class="font-semibold text-lg">Data Analysis with Python</h4>
+                                <h4 class="card-title mb-1">Data Analysis with Python</h4>
                                 <p class="text-gray-600 text-sm">Issued: 2022</p>
                             </div>
                         </div>
@@ -1088,41 +1926,47 @@
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 fade-in" style="animation-delay: 0.2s;">
-                <div class="glass-card p-8 rounded-xl shadow-xl hover:shadow-2xl transition duration-300">
-                    <div class="flex items-center mb-6">
-                        <div class="bg-primary/10 p-4 rounded-xl mr-6">
-                            <i class="fas fa-university text-primary text-3xl"></i>
+                <div class="card"> <!-- Changed from content-card-modern to Bulma card -->
+                    <div class="card-content">
+                        <div class="media">
+                            <div class="media-left">
+                                <span class="icon is-large has-text-primary"> <!-- Bulma icon styling -->
+                                    <i class="fas fa-university fa-2x"></i>
+                                </span>
+                            </div>
+                            <div class="media-content">
+                                <p class="title is-4">University of Economics and Law (UEL)</p>
+                                <p class="subtitle is-6 has-text-primary font-medium">2023 – 2027</p> <!-- Kept font-medium to see interaction -->
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-semibold text-gray-800">University of Economics and Law (UEL)</h3>
-                            <p class="text-primary font-medium">2023 – 2027</p>
+                        <div class="content">
+                            <p class="text-gray-600 mb-4">
+                                Bachelor's degree in Management Information Systems
+                            </p>
+                            <ul class="list-disc pl-5 text-gray-600 space-y-2 mt-0"> <!-- Kept Tailwind list style for now -->
+                                <li>Focus on business process optimization through technology</li>
+                                <li>Courses in SAP, database management, and business analytics</li>
+                                <li>Active member of ITB Club (HR Officer)</li>
+                                <li>Active member of UEL SAP Next Gen Student Club (SAP MM-PP Module)</li>
+                            </ul>
                         </div>
                     </div>
-                    <p class="text-gray-600 mb-6">
-                        Bachelor's degree in Management Information Systems
-                    </p>
-                    <ul class="list-disc pl-5 text-gray-600 space-y-2">
-                        <li>Focus on business process optimization through technology</li>
-                        <li>Courses in SAP, database management, and business analytics</li>
-                        <li>Active member of ITB Club (HR Officer)</li>
-                        <li>Active member of UEL SAP Next Gen Student Club (SAP MM-PP Module)</li>
-                    </ul>
                 </div>
                 
-                <div class="glass-card p-8 rounded-xl shadow-xl hover:shadow-2xl transition duration-300">
-                    <div class="flex items-center mb-6">
-                        <div class="bg-primary/10 p-4 rounded-xl mr-6">
-                            <i class="fas fa-school text-primary text-3xl"></i>
+                <div class="content-card-modern"> <!-- This card remains unchanged for now -->
+                    <div class="flex items-center mb-4">
+                        <div class="icon-wrapper bg-primary/10 p-4 rounded-xl mr-4 text-primary">
+                            <i class="fas fa-school text-3xl"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-semibold text-gray-800">THPT chuyên Lê Quý Đôn</h3>
+                            <h3 class="card-title mb-1">THPT chuyên Lê Quý Đôn</h3>
                             <p class="text-primary font-medium">2021 – 2023</p>
                         </div>
                     </div>
-                    <p class="text-gray-600 mb-6">
+                    <p class="text-gray-600 mb-4">
                         Specialized high school program
                     </p>
-                    <ul class="list-disc pl-5 text-gray-600 space-y-2">
+                    <ul class="list-disc pl-5 text-gray-600 space-y-2 mt-0">
                         <li>Focus on mathematics and natural sciences</li>
                         <li>Vietnamese Language Expert (2019-2023)</li>
                         <li>Developed strong analytical and problem-solving skills</li>
@@ -1137,8 +1981,10 @@
     <section id="contact" class="py-20 bg-gradient-to-br from-primary to-accent relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16 fade-in">
-                <h2 class="section-title text-3xl font-bold text-white">Get In Touch</h2>
-                <p class="text-white/90 max-w-2xl mx-auto mt-4">
+                <h2 class="section-title text-3xl font-bold text-white relative inline-block">Get In Touch
+                    <span class="absolute bottom-[-10px] left-1/2 transform -translate-x-1/2 w-20 h-1 bg-white rounded-full"></span>
+                </h2>
+                <p class="text-white/90 max-w-2xl mx-auto mt-6">
                     Feel free to reach out for collaborations or just a friendly hello!
                 </p>
             </div>
@@ -1211,7 +2057,7 @@
                     <div class="glass-card p-8 rounded-xl shadow-xl bg-white/10 backdrop-blur-lg">
                         <h3 class="text-2xl font-semibold text-white mb-6">Send Me a Message</h3>
                         
-                        <form id="contact-form" class="space-y-4">
+                        <form id="contact-form" action="https://formspree.io/f/mblonarv" method="POST" class="space-y-4">
                             <div class="group">
                                 <label for="name" class="block text-white font-medium mb-2">Name</label>
                                 <input type="text" id="name" name="name" 
@@ -1260,7 +2106,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="mb-4 md:mb-0">
-                    <span class="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Nguyễn Tô Hoàng Gia</span>
+                    <span class="text-2xl font-bold" style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-fill-color: transparent;">Nguyễn Tô Hoàng Gia</span>
                     <p class="text-gray-400 mt-1">Digital Transformation Consultant | UEL Student</p>
                 </div>
                 
@@ -1278,12 +2124,15 @@
             </div>
             
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                <p>© 2024 Nguyễn Tô Hoàng Gia. All rights reserved.</p>
+                <p>© <span id="currentYear"></span> Nguyễn Tô Hoàng Gia. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <script>
+        // Set current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
         // Loading screen
         window.addEventListener('load', () => {
             const loading = document.querySelector('.loading');
@@ -1334,6 +2183,76 @@
         // Highlight active navigation link based on scroll position
         const sections = document.querySelectorAll('section');
         const navItems = document.querySelectorAll('.nav-link');
+        // For animated skill bars
+        const skillBars = document.querySelectorAll('.skill-progress-bar');
+        
+        const sectionObserverOptions = {
+            rootMargin: '-80px 0px -80px 0px', // Adjust based on nav height
+            threshold: 0.1 // How much of the section is visible
+        };
+
+        const skillBarObserverOptions = {
+            threshold: 0.8 // When 80% of the bar container is visible
+        };
+
+        // General section observer for nav and fade-in titles
+        const sectionObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                const navLink = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+                const titleBlock = entry.target.querySelector(".projects-title-block"); // Generalize if more title blocks use .visible
+
+                if (entry.isIntersecting) {
+                    if (navLink) {
+                        navItems.forEach(item => item.classList.remove('active-nav', 'text-primary'));
+                        navItems.forEach(item => item.classList.add('text-gray-700'));
+                        navLink.classList.add('active-nav', 'text-primary');
+                        navLink.classList.remove('text-gray-700');
+                    }
+                    if (titleBlock) {
+                        titleBlock.classList.add('visible');
+                    }
+                    // Specific for skill bars if they are in the current section
+                    if (entry.target.id === 'skills') {
+                        skillBars.forEach(bar => {
+                            // Trigger animation if section is visible, could also be done with a separate observer for each bar
+                            const level = bar.getAttribute('data-skill-level');
+                            bar.style.width = level;
+                        });
+                    }
+                } else {
+                    if (navLink) {
+                        // Optional: remove active class when not intersecting if desired
+                        // navLink.classList.remove('active-nav', 'text-primary');
+                        // navLink.classList.add('text-gray-700');
+                    }
+                    if (titleBlock) {
+                        // titleBlock.classList.remove('visible'); // Optional: reset underline animation on scroll out
+                    }
+                }
+            });
+        }, sectionObserverOptions);
+
+        sections.forEach(section => {
+            sectionObserver.observe(section);
+        });
+
+        // Separate observer for individual skill bars for more precise animation trigger
+        // This is an alternative or refinement to the above section-based trigger
+        const animateSkillBar = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const bar = entry.target;
+                    const level = bar.getAttribute('data-skill-level');
+                    bar.style.width = level;
+                    observer.unobserve(bar); // Animate only once
+                }
+            });
+        };
+
+        const skillBarObserver = new IntersectionObserver(animateSkillBar, skillBarObserverOptions);
+        skillBars.forEach(bar => {
+            skillBarObserver.observe(bar); // Observe each progress bar itself
+        });
         
         window.addEventListener('scroll', () => {
             let current = '';
@@ -1341,24 +2260,29 @@
             sections.forEach(section => {
                 const sectionTop = section.offsetTop;
                 const sectionHeight = section.clientHeight;
-                
-                if (pageYOffset >= sectionTop - 100) {
+                // Offset by a bit more than nav height to ensure section is well in view
+                if (pageYOffset >= sectionTop - 100) { 
                     current = section.getAttribute('id');
                 }
             });
             
             navItems.forEach(item => {
                 item.classList.remove('active-nav', 'text-primary');
-                item.classList.add('text-gray-700');
+                item.classList.add('text-gray-700', 'hover:text-primary'); // Ensure hover state is consistent
                 
                 if (item.getAttribute('href') === `#${current}`) {
+                    item.classList.add('active-nav', 'text-primary');
+                    item.classList.remove('text-gray-700');
+                } else if (!current && item.getAttribute('href') === '#hero') {
+                    // Default to Home if no other section is active (e.g. at the very top)
                     item.classList.add('active-nav', 'text-primary');
                     item.classList.remove('text-gray-700');
                 }
             });
         });
         
-        // Form submission
+        // Form submission - This will now be handled by Formspree
+        /*
         const contactForm = document.getElementById('contact-form');
         
         contactForm.addEventListener('submit', (e) => {
@@ -1377,6 +2301,7 @@
             // Reset form
             contactForm.reset();
         });
+        */
         
         // Scroll animation
         const fadeElements = document.querySelectorAll('.fade-in');
@@ -1415,6 +2340,53 @@
                 card.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
             });
         });
+
+        // Intersection Observer for Staggered Project Card Animation
+        const projectCards = document.querySelectorAll('.project-card-modern');
+
+        const projectCardObserverOptions = {
+            threshold: 0.1, // When 10% of the card is visible
+            // rootMargin: "0px 0px -50px 0px" // Optional: Adjust if needed
+        };
+
+        const animateProjectCard = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const card = entry.target;
+                    const cardIndex = Array.from(projectCards).indexOf(card); // Get index for staggered delay
+                    
+                    card.style.transitionDelay = `${cardIndex * 0.1}s`;
+                    card.classList.add('animate-in');
+                    observer.unobserve(card); // Animate only once
+                }
+            });
+        };
+
+        const projectCardObserver = new IntersectionObserver(animateProjectCard, projectCardObserverOptions);
+
+        projectCards.forEach(card => {
+            projectCardObserver.observe(card);
+        });
+
+        // Mouse-reactive Gradient Background Logic
+        document.addEventListener('mousemove', e => {
+            document.documentElement.style.setProperty('--mouse-x', e.clientX + 'px');
+            document.documentElement.style.setProperty('--mouse-y', e.clientY + 'px');
+        });
+
+        // Scroll Progress Bar Logic
+        const scrollProgressBar = document.getElementById('scroll-progress-bar');
+        if (scrollProgressBar) {
+            window.addEventListener('scroll', () => {
+                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (scrollTop / scrollHeight) * 100;
+                scrollProgressBar.style.width = scrolled + '%';
+            });
+        }
+
     </script>
+    <!-- Custom Cursor Element - REMOVED -->
+    <!-- <div id="custom-cursor" class="custom-cursor"></div> -->
 </body>
 </html>
